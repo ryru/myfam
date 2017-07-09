@@ -1,0 +1,203 @@
+#!/bin/bash -u
+#
+# Sort out Tor node fingerprints nicly for each node.
+# Pascal K. 20170609 
+# Source: https://github.com/ryru/myfam
+# 
+# This script is licensed under BSD 3-Clause License (see LICENSE for more information).
+
+usage() {
+  echo "Usage: $0 FILE"
+}
+
+err() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+#######################################
+# Script input file check
+# Globals:
+#   none
+# Arguments:
+#   First script file parameter
+# Returns:
+#   Exit script on error
+#######################################
+check_data_input() {
+  local readonly data="$1"
+
+  if [ -z "$data" ]; then
+    err "no input file specified"
+    usage
+    exit 1
+  fi
+
+  if [[ -d "$data" ]]; then
+    err "$data is a directory"
+    usage
+    exit 1
+  elif [[ -f "$data" ]]; then
+    # file seems to be fine
+    :
+  else
+    err "invalid argument: $data"
+    usage
+    exit 1
+  fi
+}
+
+#######################################
+# Return fingerprint from within line
+# Globals:
+#   none
+# Arguments:
+#   Comma seperated line (fingerprint on first position)
+# Returns:
+#   Fingerprint string or empty string on error
+#######################################
+get_fingerprint_from_line() {
+  readonly local line="$1"
+  local fingerprint=""
+
+  fingerprint=$( echo "$line" | cut -d ',' -f 1 | tr -d '[:space:]' )
+
+  echo "$fingerprint"
+}
+
+#######################################
+# Return nickname from within line
+# Globals:
+#   none
+# Arguments:
+#   Comma seperated line (nickname on first position)
+# Returns:
+#   Nickname string or empty string on error
+#######################################
+get_nickname_from_line() {
+  readonly local line="$1"
+  local nickname=""
+
+  nickname=$( echo "$line" | cut -d ',' -f 2 | tr -d '[:space:]' )
+
+  echo "$nickname"
+}
+
+#######################################
+# Print amount of found fingerprints and nicknames
+# Globals:
+#   none
+# Arguments:
+#   Array of input file lines
+# Returns:
+#   none
+#######################################
+print_info() {
+  local data_array=("${!1}")
+
+  local total_nickname=0
+  local total_fingerprint=0
+
+  for entry in "${data_array[@]}"; do
+    local fingerprint
+    fingerprint=$( get_fingerprint_from_line "$entry" )
+    if [[ ! -z "$fingerprint" ]]; then
+      ((total_fingerprint=total_fingerprint+1))
+    fi
+
+    local nickname
+    nickname=$( get_nickname_from_line "$entry" )
+    if [[ ! -z "$nickname" ]]; then
+      ((total_nickname=total_nickname+1))
+    fi
+  done
+
+
+  echo "total nicknames $total_nickname and total fingerprint $total_fingerprint"
+}
+
+#######################################
+# Print node record to stdout
+# Globals:
+#   none
+# Arguments:
+#   Name of node to print
+#   Array of fingerprints to print
+# Returns:
+#   none
+#######################################
+print_family_record() {
+  local node="$1"
+  local family_members_array=("${!2}")
+  local family_string=""
+
+  echo ""
+  echo "$node"
+
+  for entry in "${family_members_array[@]}"; do
+    family_string="$family_string$entry,"
+  done
+
+  family_string=${family_string::-1}
+
+  echo "$family_string"
+}
+
+#######################################
+# Print family record for all members to stdout
+# Globals:
+#   none
+# Arguments:
+#   Array of input file lines
+#   Size of input file array
+# Returns:
+#   none
+#######################################
+print_family() {
+  local data_array=("${!1}")
+  local data_array_len="$2"
+
+  for (( i=0; i<${data_array_len}; i++ )); do
+    local readonly nickname=$( get_nickname_from_line "${data_array[$i]}" )
+    local family_members["$((data_array_len-1))"]
+    
+    k=0
+    for (( j=0; j<${data_array_len}; j++ )); do
+      if [[ "$i" == "$j" ]]; then
+        : 
+      else  
+        family_members["$k"]=$( get_fingerprint_from_line "${data_array[$j]}" )
+        ((k=k+1))
+      fi
+
+    done
+    print_family_record "$nickname" family_members[@]
+
+  done
+}
+
+main() {
+  if [[ $# -eq 0 ]]; then
+    err "no input file supplied"
+    usage
+    exit 1
+  fi
+
+  readonly local input_file="$1"
+  check_data_input "$input_file"
+
+
+  input_size=$( wc -l < "$input_file" )
+  counter=0
+
+  # read file in
+  while read -r line || [[ -n "$line" ]]; do
+    data["$counter"]="$line"
+    ((counter=counter+1))
+  done < "$input_file"
+
+
+  print_info data[@]
+  print_family data[@] "$counter"
+}
+
+main "$@"
