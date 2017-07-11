@@ -137,7 +137,7 @@ print_family_record() {
     family_string="$family_string$entry,"
   done
 
-  family_string=${family_string::-1}
+  family_string="${family_string%?}"
 
   echo "$family_string"
 }
