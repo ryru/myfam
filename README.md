@@ -1,7 +1,7 @@
 # myfam
-A script helping you maintaining your Tor family members configuration.
+A script helping you maintaining your Tor family members' configuration.
 
-The `MyFamily` configuration parameter in a torrc file contains a list of fingerprints with all family members. Technically one can configure on all its Tor nodes the same string, so every node contains all other nodes fingerprint as well as its own fingerprint. According to the [manual](https://www.torproject.org/docs/tor-manual.html.en) this won’t hurt. But wouldn't it be cool to get a unique, separate string with each fingerprints of the other family members without the nodes own one? This exactly is the very purpose of `myfam`!
+The `MyFamily` configuration parameter in a torrc file contains a list of fingerprints with all family members. Technically one can configure on all its Tor nodes the same string, so every node contains all other nodes' fingerprints as well as its own fingerprint. According to the [manual](https://www.torproject.org/docs/tor-manual.html.en) this won’t hurt. But wouldn't it be cool to get a unique, separate string with each fingerprint of the other family members without the node's own one? This exactly is the very purpose of `myfam`!
 
 With `myfam` you maintain one list of comma separated fingerprints and nicknames with all your nodes in it and let `myfam` generate the unique configuration string per node family member.
 
