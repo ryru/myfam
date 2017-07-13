@@ -128,10 +128,10 @@ print_info() {
 print_family_record() {
   local node="$1"
   local family_members_array=("${!2}")
-  local family_string=""
+  local family_string="MyFamily "
 
   echo ""
-  echo "$node"
+  echo "Nickname $node"
 
   for entry in "${family_members_array[@]}"; do
     family_string="$family_string$entry,"
