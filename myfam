@@ -112,7 +112,7 @@ print_info() {
   done
 
 
-  echo "total nicknames $total_nickname and total fingerprint $total_fingerprint"
+  echo "total nicknames $total_nickname and total fingerprints $total_fingerprint"
 }
 
 #######################################
