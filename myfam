@@ -1,7 +1,7 @@
 #!/bin/bash -u
 #
 # Sort out Tor node fingerprints nicly for each node.
-# Pascal K. 20170609 
+# Pascal K. 20170613
 # Source: https://github.com/ryru/myfam
 # 
 # This script is licensed under BSD 3-Clause License (see LICENSE for more information).
